@@ -1,4 +1,5 @@
 import json
+import numpy as np
 
 effects = {}
 negatives = {}
@@ -12,15 +13,12 @@ def find_names(file_name, dic_put_names):
             for feeling in effects[strain]:
                 name_of_feeling, value_of_feeling = feeling
                 if name_of_feeling not in dic_put_names:
-                    dic_put_names[name_of_feeling] = [1, value_of_feeling, value_of_feeling, value_of_feeling]
+                    dic_put_names[name_of_feeling] = [value_of_feeling]
                 else:
-                    dic_put_names[name_of_feeling][0] += 1
-                    dic_put_names[name_of_feeling][1] += value_of_feeling
-                    dic_put_names[name_of_feeling][2] = min(value_of_feeling, dic_put_names[name_of_feeling][2])
-                    dic_put_names[name_of_feeling][3] = max(value_of_feeling, dic_put_names[name_of_feeling][3])
+                    dic_put_names[name_of_feeling].append(value_of_feeling)
 
     for name in dic_put_names:
-        dic_put_names[name].append(dic_put_names[name][1] / dic_put_names[name][0])
+        dic_put_names[name] = np.array(dic_put_names[name])
 
 
 def make_name_file(name_of_file, effect_dict, neg_dict, medical_dict):
@@ -33,9 +31,18 @@ def make_name_file(name_of_file, effect_dict, neg_dict, medical_dict):
 
 def make_simple_info_file(name_of_file, dict):
     f = open(name_of_file, 'w')
-    f.write('form of name: number of strains with feeling, total count of feeling, min value, max value, ave count of feeling\n')
+    f.write('number, total, ave, median, min, max\n')
     for feeling in dict:
-        f.write("{} : {}\n".format(feeling, dict[feeling]))
+        feeling_array = dict[feeling]
+        number_strains_with_feeling = len(feeling_array)
+        total_feeling_count = np.sum(feeling_array)
+        ave_feeling_count = np.mean(feeling_array)
+        median_feeling_count = np.median(feeling_array)
+        min_feeling = np.min(feeling_array)
+        max_feeling = np.max(feeling_array)
+        f.write("{} : [{}, {}, {}, {}, {}, {}]\n".format(feeling, number_strains_with_feeling, total_feeling_count
+                                                         , ave_feeling_count, median_feeling_count
+                                                         , min_feeling, max_feeling))
     f.close()
 
 find_names('effects.json', effects)
