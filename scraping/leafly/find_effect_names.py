@@ -12,10 +12,13 @@ def find_names(file_name, dic_put_names):
             for feeling in effects[strain]:
                 name_of_feeling, value_of_feeling = feeling
                 if name_of_feeling not in dic_put_names:
-                    dic_put_names[name_of_feeling] = [1, value_of_feeling]
+                    dic_put_names[name_of_feeling] = [1, value_of_feeling, value_of_feeling, value_of_feeling]
                 else:
                     dic_put_names[name_of_feeling][0] += 1
                     dic_put_names[name_of_feeling][1] += value_of_feeling
+                    dic_put_names[name_of_feeling][2] = min(value_of_feeling, dic_put_names[name_of_feeling][2])
+                    dic_put_names[name_of_feeling][3] = max(value_of_feeling, dic_put_names[name_of_feeling][3])
+
     for name in dic_put_names:
         dic_put_names[name].append(dic_put_names[name][1] / dic_put_names[name][0])
 
@@ -30,7 +33,7 @@ def make_name_file(name_of_file, effect_dict, neg_dict, medical_dict):
 
 def make_simple_info_file(name_of_file, dict):
     f = open(name_of_file, 'w')
-    f.write('form of name: number of strains with feeling, total count of feeling, ave count of feeling\n')
+    f.write('form of name: number of strains with feeling, total count of feeling, min value, max value, ave count of feeling\n')
     for feeling in dict:
         f.write("{} : {}\n".format(feeling, dict[feeling]))
     f.close()
