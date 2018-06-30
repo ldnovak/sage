@@ -555,7 +555,6 @@
 /hybrid/jacks-dragon-girl-7
 /sativa/ultimate-trainwreck
 /sativa/strawberry-amnesia
-/indica/magnificent-mile
 /hybrid/sunset-haze
 /hybrid/zen
 /hybrid/rebel-berry-og

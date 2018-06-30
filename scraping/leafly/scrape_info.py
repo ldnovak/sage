@@ -16,6 +16,7 @@ effects = {}
 negatives = {}
 medical = {}
 types = {}
+cnt = 1
 
 # ------- functions ---------
 def scrape_attributes(bs, strain, dic):
@@ -41,80 +42,87 @@ def scrape_attributes(bs, strain, dic):
 
 # ------- query each url for effect and type data ---------
 while True:
-	try:
-		fname = "urls.txt"
-		with open(fname, "r") as f:
-			urls = f.readlines()
+	fname = "urls.txt"
+	with open(fname, "r") as f:
+		urls = f.readlines()
 
-			for url in urls:
+		for i,url in enumerate(urls):
 
-				url.strip('\n')
+			url.strip('\n')
 
-				tmp,strain_type,strain_abbr = url.split('/')
+			tmp,strain_type,strain_abbr = url.split('/')
+
+			while True:
 
 				# open page and get page data
-				page = urlopen('https://www.leafly.com' + url, timeout=30)
+				try:
+					page = urlopen('https://www.leafly.com' + url, timeout=30)
 
-				# parse the html
-				soup = BeautifulSoup(page, 'html.parser')
+					# parse the html
+					soup = BeautifulSoup(page, 'html.parser')
 
-				# get full name of strain
-				strain_name = soup.find('h1').text
+					# get full name of strain
+					strain_name = soup.find('h1').text
 
-				# if necessary, extract the type of hybrid
+					# if necessary, extract the type of hybrid
 
-				# extract the tags that contain strain description info
-				# found manually from leafly
-				description = soup.find('p')
+					# extract the tags that contain strain description info
+					# found manually from leafly
+					description = soup.find('p')
 
-				if strain_type == "hybrid":
-					description = description.text
-					if 'sativa-dominant' in description: strain_type = 'sativa-hybrid'
-					if 'indica-dominant' in description: strain_type = 'indica-hybrid'
+					if strain_type == "hybrid":
+						description = description.text
+						if 'sativa-dominant' in description: strain_type = 'sativa-hybrid'
+						if 'indica-dominant' in description: strain_type = 'indica-hybrid'
 
-				# RECORD strain type
-				types[strain_name] = strain_type
+					# RECORD strain type
+					types[strain_name] = strain_type
 
-				# --------- get the effects' bar graphs + percentages into dicrionaries ---------
-				# query for Effects
-				effects_page = soup.find('div', attrs={'ng-show': "currentAttributeTab==='Effects'"})
-				if effects_page:
-					# run function to get all the relevant attributes' effects + their percentages
-					scrape_attributes(effects_page, strain_name, effects)
+					# --------- get the effects' bar graphs + percentages into dicrionaries ---------
+					# query for Effects
+					effects_page = soup.find('div', attrs={'ng-show': "currentAttributeTab==='Effects'"})
+					if effects_page:
+						# run function to get all the relevant attributes' effects + their percentages
+						scrape_attributes(effects_page, strain_name, effects)
 
-				# query for Medical
-				medical_page = soup.find('div', attrs={'ng-show': "currentAttributeTab==='Effects'"})
-				if medical_page:
-					scrape_attributes(medical_page, strain_name, medical)
+					# query for Medical
+					medical_page = soup.find('div', attrs={'ng-show': "currentAttributeTab==='Effects'"})
+					if medical_page:
+						scrape_attributes(medical_page, strain_name, medical)
 
-				# query for Negatives
-				negatives_page = soup.find('div', attrs={'ng-show': "currentAttributeTab==='Effects'"})
-				if negatives_page:
-					scrape_attributes(negatives_page, strain_name, negatives)
-
-			f.close()
-
-
-		# write the results to JSON files 
-		with open('types.json', 'w', sort_keys=True) as fp:
-		    json.dump(types, fp)
-		    fp.close()
-
-		with open('effects.json', 'w', sort_keys=True) as fp:
-		    json.dump(effects, fp)
-		    fp.close()
-
-		with open('medical.json', 'w', sort_keys=True) as fp:
-		    json.dump(medical, fp)
-		    fp.close()
-
-		with open('negatives.json', 'w', sort_keys=True) as fp:
-		    json.dump(negatives, fp)
-		    fp.close()
+					# query for Negatives
+					negatives_page = soup.find('div', attrs={'ng-show': "currentAttributeTab==='Effects'"})
+					if negatives_page:
+						scrape_attributes(negatives_page, strain_name, negatives)
+					break
+				except:
+					if cnt == 5: 
+						cnt = 1
+						break
+					cnt+=1
+					print('next attempt, %s' % url)
+					continue
+			print('completed %d' % i)
+		f.close()
 
 
-		print("--- %f seconds ---" % (time.time() - start_time))
-		break
-	except:
-		print('next attempt')
-		continue
+	# write the results to JSON files 
+	with open('types.json', 'w') as fp:
+	    json.dump(types, fp, sort_keys=True)
+	    fp.close()
+
+	with open('effects.json', 'w') as fp:
+	    json.dump(effects, fp, sort_keys=True)
+	    fp.close()
+
+	with open('medical.json', 'w') as fp:
+	    json.dump(medical, fp, sort_keys=True)
+	    fp.close()
+
+	with open('negatives.json', 'w') as fp:
+	    json.dump(negatives, fp, sort_keys=True)
+	    fp.close()
+
+
+	print("--- %f seconds ---" % (time.time() - start_time))
+	break
