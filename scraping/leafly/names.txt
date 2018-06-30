@@ -1,0 +1,3 @@
+effect names: ['Relaxed', 'Hungry', 'Sleepy', 'Creative', 'Energetic', 'Aroused', 'Uplifted', 'Happy', 'Tingly', 'Euphoric', 'Giggly', 'Talkative', 'Focused']
+negative names: ['Relaxed', 'Hungry', 'Sleepy', 'Creative', 'Energetic', 'Aroused', 'Uplifted', 'Happy', 'Tingly', 'Euphoric', 'Giggly', 'Talkative', 'Focused']
+medical names: ['Relaxed', 'Hungry', 'Sleepy', 'Creative', 'Energetic', 'Aroused', 'Uplifted', 'Happy', 'Tingly', 'Euphoric', 'Giggly', 'Talkative', 'Focused']
